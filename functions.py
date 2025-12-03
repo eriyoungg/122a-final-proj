@@ -141,7 +141,7 @@ def import_data(folder_name):
             
             with open(path, "r", encoding="utf-8") as csvfile:
                 reader = csv.reader(csvfile)
-                rows = list(reader)
+                rows = list(reader)[1:] # skip header row
 
                 if len(rows) == 0:
                     continue
