@@ -20,9 +20,12 @@ def import_data(folder_name):
         conn = get_connection() # connects to sql server
         cur = conn.cursor() # executes commands
 
+        # disable foreign key checks
+        cur.execute("SET FOREIGN_KEY_CHECKS = 0")
+
         # reset/delete tables if exists
         cmds = [
-            "DROP TABLE IF EXISTS ModelConfiguration",
+            "DROP TABLE IF EXISTS ModelConfigurations",
             "DROP TABLE IF EXISTS ModelServices",
             "DROP TABLE IF EXISTS CustomizedModel",
             "DROP TABLE IF EXISTS Configuration",
@@ -43,29 +46,29 @@ def import_data(folder_name):
         create_tables =[
             """CREATE TABLE User (
                 uid INTEGER PRIMARY KEY,
-                username VARCHAR(50) NOT NULL,
-                email VARCHAR(50) NOT NULL UNIQUE
+                email VARCHAR(50) NOT NULL UNIQUE,
+                username VARCHAR(50) NOT NULL
             )""",
             """CREATE TABLE AgentCreator (
                 uid INTEGER PRIMARY KEY,
-                payout_account VARCHAR(100) NOT NULL,
                 bio VARCHAR(255),
+                payout VARCHAR(100) NOT NULL,
                 FOREIGN KEY (uid) REFERENCES User (uid) ON DELETE CASCADE
             )""",
             """CREATE TABLE AgentClient (
                 uid INTEGER PRIMARY KEY,
-                card_number CHAR(19) NOT NULL,
-                cardholder_name VARCHAR(100) NOT NULL,
-                expiration DATE NOT NULL,
-                cvv CHAR(4) NOT NULL,
-                zip VARCHAR(10) NOT NULL,
                 interests VARCHAR(255),
+                cardholder VARCHAR(100) NOT NULL,
+                expire DATE NOT NULL,
+                card_no CHAR(19) NOT NULL,
+                cvv CHAR(5) NOT NULL,
+                zip VARCHAR(10) NOT NULL,
                 FOREIGN KEY (uid) REFERENCES User (uid) ON DELETE CASCADE
             )""",
             """CREATE TABLE BaseModel (
                 bmid INTEGER PRIMARY KEY,
-                description VARCHAR(255),
                 creator_uid INTEGER NOT NULL,
+                description VARCHAR(255),
                 FOREIGN KEY (creator_uid) REFERENCES AgentCreator (uid) ON DELETE RESTRICT
             )""",
             """CREATE TABLE InternetService (
@@ -91,9 +94,9 @@ def import_data(folder_name):
             )""",
             """CREATE TABLE Configuration (
                 cid INTEGER PRIMARY KEY,
-                content TEXT NOT NULL,
-                labels VARCHAR(255),
                 client_uid INTEGER NOT NULL,
+                content TEXT NOT NULL,
+                labels VARCHAR(100),
                 FOREIGN KEY (client_uid) REFERENCES AgentClient (uid) ON DELETE CASCADE
             )""",
             """CREATE TABLE ModelServices (
@@ -104,11 +107,11 @@ def import_data(folder_name):
                 FOREIGN KEY (bmid) REFERENCES BaseModel (bmid) ON DELETE CASCADE,
                 FOREIGN KEY (sid) REFERENCES InternetService (sid) ON DELETE RESTRICT
             )""",
-            """CREATE TABLE ModelConfiguration (
-                cid INTEGER NOT NULL,
+            """CREATE TABLE ModelConfigurations (
                 bmid INTEGER NOT NULL,
                 mid INTEGER NOT NULL,
-                duration_seconds INTEGER NOT NULL,
+                cid INTEGER NOT NULL,
+                duration INTEGER NOT NULL,
                 PRIMARY KEY (cid, bmid, mid),
                 FOREIGN KEY (cid) REFERENCES Configuration(cid) ON DELETE CASCADE,
                 FOREIGN KEY (bmid, mid) REFERENCES CustomizedModel (bmid, mid) ON DELETE CASCADE
@@ -121,16 +124,16 @@ def import_data(folder_name):
         # populate tables
         table_files = {
             "User": "User.csv",
-            "AgentCreator": "AgentCreator.csv",
             "AgentClient": "AgentClient.csv",
+            "AgentCreator": "AgentCreator.csv",
+            "InternetService": "InternetService.csv",
+            "BaseModel": "BaseModel.csv",
             "LLMService" : "LLMService.csv",
             "DataStorage": "DataStorage.csv",
+            "CustomizedModel": "CustomizedModel.csv",
             "Configuration": "Configuration.csv",
             "ModelServices": "ModelServices.csv",
-            "BaseModel": "BaseModel.csv",
-            "InternetService": "InternetService.csv",
-            "CustomizedModel": "CustomizedModel.csv",
-            "ModelConfiguration": "ModelConfiguration.csv",
+            "ModelConfigurations": "ModelConfigurations.csv",
         }
 
         for table, filename in table_files.items():
