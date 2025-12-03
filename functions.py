@@ -38,14 +38,87 @@ def import_data(folder_name):
         for cmd in cmds:
             cur.execute(cmd)
 
-        path = os.path.join(folder_name, "ddl.sql")
-        with open(path, "r") as f:
-            script = f.read()
-            for cmd in script.split(";"):
-                if cmd.strip():
-                    cur.execute(cmd)
+        # create predefined tables from hw2
+            
+        create_tables =[
+            """CREATE TABLE User (
+                uid INTEGER PRIMARY KEY,
+                username VARCHAR(50) NOT NULL,
+                email VARCHAR(50) NOT NULL UNIQUE
+            )""",
+            """CREATE TABLE AgentCreator (
+                uid INTEGER PRIMARY KEY,
+                payout_account VARCHAR(100) NOT NULL,
+                bio VARCHAR(255),
+                FOREIGN KEY (uid) REFERENCES User (uid) ON DELETE CASCADE
+            )""",
+            """CREATE TABLE AgentClient (
+                uid INTEGER PRIMARY KEY,
+                card_number CHAR(19) NOT NULL,
+                cardholder_name VARCHAR(100) NOT NULL,
+                expiration DATE NOT NULL,
+                cvv CHAR(4) NOT NULL,
+                zip VARCHAR(10) NOT NULL,
+                interests VARCHAR(255),
+                FOREIGN KEY (uid) REFERENCES User (uid) ON DELETE CASCADE
+            )""",
+            """CREATE TABLE BaseModel (
+                bmid INTEGER PRIMARY KEY,
+                description VARCHAR(255),
+                creator_uid INTEGER NOT NULL,
+                FOREIGN KEY (creator_uid) REFERENCES AgentCreator (uid) ON DELETE RESTRICT
+            )""",
+            """CREATE TABLE InternetService (
+                sid INTEGER PRIMARY KEY,
+                provider VARCHAR(100) NOT NULL,
+                endpoints VARCHAR(255) NOT NULL
+            )""",
+            """CREATE TABLE LLMService (
+                sid INTEGER PRIMARY KEY,
+                domain VARCHAR(100) NOT NULL,
+                FOREIGN KEY (sid) REFERENCES InternetService (sid) ON DELETE CASCADE
+            )""",
+            """CREATE TABLE DataStorage (
+                sid INTEGER PRIMARY KEY,
+                type VARCHAR(50) NOT NULL,
+                FOREIGN KEY (sid) REFERENCES InternetService (sid) ON DELETE CASCADE
+            )""",
+            """CREATE TABLE CustomizedModel (
+                bmid INTEGER NOT NULL,
+                mid INTEGER NOT NULL,
+                PRIMARY KEY (bmid, mid),
+                FOREIGN KEY (bmid) REFERENCES BaseModel (bmid) ON DELETE CASCADE
+            )""",
+            """CREATE TABLE Configuration (
+                cid INTEGER PRIMARY KEY,
+                content TEXT NOT NULL,
+                labels VARCHAR(255),
+                client_uid INTEGER NOT NULL,
+                FOREIGN KEY (client_uid) REFERENCES AgentClient (uid) ON DELETE CASCADE
+            )""",
+            """CREATE TABLE ModelServices (
+                bmid INTEGER NOT NULL,
+                sid INTEGER NOT NULL,
+                version VARCHAR(50),
+                PRIMARY KEY (bmid, sid),
+                FOREIGN KEY (bmid) REFERENCES BaseModel (bmid) ON DELETE CASCADE,
+                FOREIGN KEY (sid) REFERENCES InternetService (sid) ON DELETE RESTRICT
+            )""",
+            """CREATE TABLE ModelConfiguration (
+                cid INTEGER NOT NULL,
+                bmid INTEGER NOT NULL,
+                mid INTEGER NOT NULL,
+                duration_seconds INTEGER NOT NULL,
+                PRIMARY KEY (cid, bmid, mid),
+                FOREIGN KEY (cid) REFERENCES Configuration(cid) ON DELETE CASCADE,
+                FOREIGN KEY (bmid, mid) REFERENCES CustomizedModel (bmid, mid) ON DELETE CASCADE
+            )"""
+        ]
 
-        # create tables
+        for cmd in create_tables:
+            cur.execute(cmd)
+
+        # populate tables
         table_files = {
             "User": "User.csv",
             "AgentCreator": "AgentCreator.csv",
