@@ -9,6 +9,7 @@ DB_CONFIG = {
     "host": ENV.get("host"),
     "user": ENV.get("user"),
     "password": ENV.get("password"), 
+    "database": "cs122a"
 }
 
 def get_connection():
@@ -22,13 +23,16 @@ def import_data(folder_name):
         # reset/delete tables if exists
         cmds = [
             "DROP TABLE IF EXISTS ModelConfiguration",
+            "DROP TABLE IF EXISTS ModelServices",
             "DROP TABLE IF EXISTS CustomizedModel",
-            "DROP TABLE IF EXISTS BaseModelService",
+            "DROP TABLE IF EXISTS Configuration",
+            "DROP TABLE IF EXISTS LLMService",
+            "DROP TABLE IF EXISTS DataStorage",
             "DROP TABLE IF EXISTS InternetService",
             "DROP TABLE IF EXISTS BaseModel",
-            "DROP TABLE IF EXISTS AgentInterests",
-            "DROP TABLE IF EXISTS PaymentInfo",
-            "DROP TABLE IF EXISTS AgentClient"
+            "DROP TABLE IF EXISTS AgentClient",
+            "DROP TABLE IF EXISTS AgentCreator",
+            "DROP TABLE IF EXISTS User"
         ]
 
         for cmd in cmds:
@@ -43,12 +47,15 @@ def import_data(folder_name):
 
         # create tables
         table_files = {
+            "User": "User.csv",
+            "AgentCreator": "AgentCreator.csv",
             "AgentClient": "AgentClient.csv",
-            "PaymentInfo": "PaymentInfo.csv",
-            "AgentInterests": "AgentInterests.csv",
+            "LLMService" : "LLMService.csv",
+            "DataStorage": "DataStorage.csv",
+            "Configuration": "Configuration.csv",
+            "ModelServices": "ModelServices.csv",
             "BaseModel": "BaseModel.csv",
             "InternetService": "InternetService.csv",
-            "BaseModelService": "BaseModelService.csv",
             "CustomizedModel": "CustomizedModel.csv",
             "ModelConfiguration": "ModelConfiguration.csv",
         }
