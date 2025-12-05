@@ -215,6 +215,7 @@ def addCustomizedModel(mid, bmid):
         conn.commit()
         return True
     except Exception as e:
+        # Ed discussion said to return false if Base model that is referenced does not exist
         print(f"Failed to add customized model: {e}")
 
         # rollback changes in case of error
@@ -222,6 +223,7 @@ def addCustomizedModel(mid, bmid):
             conn.rollback()
 
         # [DEBUG]: print all customized models and base models
+        
         
         try:
             print('All customized models:')
