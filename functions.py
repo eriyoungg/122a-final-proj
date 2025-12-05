@@ -60,7 +60,7 @@ def import_data(folder_name):
                 interests VARCHAR(255),
                 cardholder VARCHAR(100) NOT NULL,
                 expire DATE NOT NULL,
-                card_no CHAR(19) NOT NULL,
+                cardno CHAR(19) NOT NULL,
                 cvv CHAR(5) NOT NULL,
                 zip VARCHAR(10) NOT NULL,
                 FOREIGN KEY (uid) REFERENCES User (uid) ON DELETE CASCADE
@@ -162,18 +162,43 @@ def import_data(folder_name):
         cur.close()
         conn.close()
 
-def insertAgentClient(uid, username, email, card_number,
+def insertAgentClient(uid, username, email, cardno,
                       card_holder, expiration_date, cvv,
                       zip_code, interests):
     try:
         conn = get_connection()
         cur = conn.cursor()
 
-        # insert into relevant tables
+        sql_command = """INSERT INTO User (uid, email, username)
+                         VALUES (%s, %s, %s)
+                         """
 
+        sql_command2 = """INSERT INTO AgentClient (uid, interests, cardholder, expire, cardno, cvv, zip)
+                          VALUES (%s, %s, %s, %s, %s, %s, %s)
+                          """
+        cur.execute(sql_command, (uid, email, username))
+        cur.execute(sql_command2, (uid, interests, card_holder, expiration_date, cardno, cvv, zip_code))
         conn.commit()
         return True
-    except:
+    except Exception as e:
+        print(f"Failed to insert client: {e}")
+
+        # rollback changes in case of error
+        if 'conn' in locals() and conn:
+            conn.rollback()
+
+        # in case of duplicate primary key, print all users in database to debug
+        print('All users:')
+        try:
+            cur.execute("SELECT * FROM User")
+            users = cur.fetchall()
+            for user in users:
+                print(user)
+        except Exception as e:
+            print(f"Failed to fetch users: {e}")
+        
+        
+            
         return False
     finally:
         cur.close()
