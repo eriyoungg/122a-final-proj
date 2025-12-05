@@ -34,6 +34,21 @@ Inside `functions.py`, update `DB_CONFIG` to match your MySQL setup:
 **test_data_project_122a:** Example folder containing CSV files for import\
 **README.md:** This file
 
+## Test Database Tables and Variables:
+
+- User.csv: ['uid', 'email', 'username']
+- AgentCreator.csv: ['uid', 'bio', 'payout']
+- AgentClient.csv: ['uid', 'interests', 'cardholder', 'expire', 'cardno', 'cvv', 'zip']
+- InternetService.csv: ['sid', 'provider', 'endpoints']
+- BaseModel.csv: ['bmid', 'creator_uid', 'description']
+- LLMService.csv: ['sid', 'domain']
+- DataStorage.csv: ['sid', 'type']
+- CustomizedModel.csv: ['bmid', 'mid']
+- Configuration.csv: ['cid', 'client_uid', 'content', 'labels']
+- ModelServices.csv: ['bmid', 'sid', 'version']
+- ModelConfigurations.csv: ['bmid', 'mid', 'cid', 'duration']
+
+
 ## Run Program
 
 - Every command must be run separately.  
