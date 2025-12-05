@@ -251,11 +251,28 @@ def deleteBaseModel(bmid):
         conn = get_connection()
         cur = conn.cursor()
 
-        # delete base model (cascade)
+        sql_command = """DELETE FROM BaseModel
+                        WHERE bmid = %s
+                        """
+        cur.execute(sql_command, (bmid,))
 
         conn.commit()
         return True
     except Exception as e:
+
+        # [DEBUG]: print all base models
+
+        print(f"Failed to delete base model: {e}")
+
+        # rollback changes in case of error
+        if 'conn' in locals() and conn:
+            conn.rollback()
+
+        print('All base models:')
+        cur.execute("SELECT * FROM BaseModel")
+        base_models = cur.fetchall()
+        for base_model in base_models:
+            print(base_model)
         return False
     finally:
         cur.close()
