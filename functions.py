@@ -187,7 +187,7 @@ def insertAgentClient(uid, username, email, cardno,
         if 'conn' in locals() and conn:
             conn.rollback()
 
-        # in case of duplicate primary key, print all users in database to debug
+        # [DEBUG]: in case of duplicate primary key, print all users in database to debug
         print('All users:')
         try:
             cur.execute("SELECT * FROM User")
@@ -197,9 +197,8 @@ def insertAgentClient(uid, username, email, cardno,
         except Exception as e:
             print(f"Failed to fetch users: {e}")
         
-        
-            
         return False
+    
     finally:
         cur.close()
         conn.close()
@@ -209,11 +208,37 @@ def addCustomizedModel(mid, bmid):
         conn = get_connection()
         cur = conn.cursor()
 
-        # insert into customized model table
-
+        sql_command = """INSERT INTO CustomizedModel (bmid, mid)
+                         VALUES (%s, %s)
+                         """
+        cur.execute(sql_command, (bmid, mid))
         conn.commit()
         return True
-    except:
+    except Exception as e:
+        print(f"Failed to add customized model: {e}")
+
+        # rollback changes in case of error
+        if 'conn' in locals() and conn:
+            conn.rollback()
+
+        # [DEBUG]: print all customized models and base models
+        
+        try:
+            print('All customized models:')
+            cur.execute("SELECT * FROM CustomizedModel")
+            customized_models = cur.fetchall()
+            for customized_model in customized_models:
+                print(customized_model)
+            
+            print('All base models:')
+            cur.execute("SELECT * FROM BaseModel")
+            base_models = cur.fetchall()
+            for base_model in base_models:
+                print(base_model)
+
+        except Exception as e:
+            print(f"Failed to fetch customized models: {e}")
+        
         return False
     finally:
         cur.close()
@@ -228,7 +253,7 @@ def deleteBaseModel(bmid):
 
         conn.commit()
         return True
-    except:
+    except Exception as e:
         return False
     finally:
         cur.close()
@@ -243,7 +268,8 @@ def listInternetService(bmid):
 
         rows = [] 
         return rows
-    except:
+    except Exception as e:
+        print(f"Failed to list internet service: {e}")  
         return []
     finally:
         cur.close()
@@ -258,7 +284,8 @@ def countCustomizedModel(bmid):
 
         rows = []
         return rows
-    except:
+    except Exception as e:
+        print(f"Failed to count customized model: {e}")
         return []
     finally:
         cur.close()
@@ -273,7 +300,8 @@ def topNDurationConfig(uid, N):
 
         rows = []
         return rows
-    except:
+    except Exception as e:
+        print(f"Failed to get top N duration config: {e}")
         return []
     finally:
         cur.close()
@@ -288,7 +316,8 @@ def listBaseModelKeyWord(keyword):
 
         rows = []
         return rows
-    except:
+    except Exception as e:
+        print(f"Failed to list base model keyword: {e}")
         return []
     finally:
         cur.close()
@@ -304,7 +333,8 @@ def printNL2SQLresult():
 
         rows = []
         return rows
-    except:
+    except Exception as e:
+        print(f"Failed to print NL2SQL result: {e}")
         return []
     finally:
         cur.close()
