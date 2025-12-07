@@ -162,9 +162,13 @@ def import_data(folder_name):
         cur.close()
         conn.close()
 
+'''
+Inserts new row into User and AgentClient
+'''
 def insertAgentClient(uid, username, email, cardno,
                       card_holder, expiration_date, cvv,
                       zip_code, interests):
+    # e.g. 101 jonny_panda jonny@gmail.com 12345 Jonathan 2025-12-05 321 90210 "AI, ML"
     try:
         conn = get_connection()
         cur = conn.cursor()
@@ -203,10 +207,30 @@ def insertAgentClient(uid, username, email, cardno,
         cur.close()
         conn.close()
 
+'''
+Inserts mew row into CustomizedModel
+'''
 def addCustomizedModel(mid, bmid):
+    # e.g. 
     try:
         conn = get_connection()
         cur = conn.cursor()
+
+        # check if bmid exists
+        cur.execute("SELECT 1 FROM BaseModel WHERE bmid = %s", (bmid,))
+        bmids = cur.fetchone()
+
+        if not bmids:
+            print(f"BaseModel with bmid '{bmid}' does not exist.")
+            raise ValueError
+        
+        # check if primary key (bmid, mid) exists
+        cur.execute("SELECT 1 FROM CustomizedModel WHERE bmid = %s AND mid = %s", (bmid, mid))
+        customized_models = cur.fetchone()
+
+        if customized_models:
+            print(f"CustomizedModel with bmid '{bmid}' and mid '{mid}' already exists.")
+            raise ValueError
 
         sql_command = """INSERT INTO CustomizedModel (bmid, mid)
                          VALUES (%s, %s)
@@ -214,33 +238,9 @@ def addCustomizedModel(mid, bmid):
         cur.execute(sql_command, (bmid, mid))
         conn.commit()
         return True
-    except Exception as e:
+    except Exception:
         # Ed discussion said to return false if Base model that is referenced does not exist
-        print(f"Failed to add customized model: {e}")
-
-        # rollback changes in case of error
-        if 'conn' in locals() and conn:
-            conn.rollback()
-
-        # [DEBUG]: print all customized models and base models
-        
-        
-        try:
-            print('All customized models:')
-            cur.execute("SELECT * FROM CustomizedModel")
-            customized_models = cur.fetchall()
-            for customized_model in customized_models:
-                print(customized_model)
-            
-            print('All base models:')
-            cur.execute("SELECT * FROM BaseModel")
-            base_models = cur.fetchall()
-            for base_model in base_models:
-                print(base_model)
-
-        except Exception as e:
-            print(f"Failed to fetch customized models: {e}")
-        
+        print(f"Failed to add customized model")
         return False
     finally:
         cur.close()
