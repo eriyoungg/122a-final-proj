@@ -212,7 +212,7 @@ def insertAgentClient(uid, username, email, cardno,
         conn.close()
 
 '''
-Inserts mew row into CustomizedModel
+Inserts new row into CustomizedModel
 '''
 def addCustomizedModel(mid, bmid):
     try:
@@ -254,16 +254,31 @@ def addCustomizedModel(mid, bmid):
         cur.close()
         conn.close()
 
+'''
+Delete a base model and all referenced rows
+'''
 def deleteBaseModel(bmid):
     try:
         conn = get_connection()
         cur = conn.cursor()
 
+        # check if base model exists
+        cur.execute("SELECT 1 FROM BaseModel WHERE bmid = %s", (bmid,))
+        if not cur.fetchone():
+            print(f"[DEBUG] BaseModel with bmid '{bmid}' does not exist.")
+            return False
+        
         # delete base model (cascade)
-
+        cur.execute("DELETE FROM BaseModel WHERE bmid = %s", (bmid,))
         conn.commit()
         return True
     except Exception as e:
+        print(f"Failed to delete base model.\n{e}")
+
+        # rollback changes in case of error
+        if 'conn' in locals() and conn:
+            conn.rollback()
+            
         return False
     finally:
         cur.close()
