@@ -411,17 +411,45 @@ def topNDurationConfig(uid, N):
         cur.close()
         conn.close()
 
+'''
+Shows top 5 of base models for keyword search over LLMService
+'''
 def listBaseModelKeyWord(keyword):
+    # e.g. sql terminal command:
+    """
+    SELECT b.bmid, i.sid, i.provider, l.domain
+        FROM BaseModel AS b
+        JOIN ModelServices AS m ON b.bmid = m.bmid
+        JOIN LLMService AS l ON m.sid = l.sid
+        JOIN InternetService AS i ON l.sid = i.sid
+        WHERE l.domain LIKE 'video'
+        ORDER BY b.bmid ASC
+        LIMIT 5;
+    """
     try:
         conn = get_connection()
         cur = conn.cursor()
 
-        # SELECT bmid, sid, provider, domain
+        pattern = f"%{keyword}"
 
-        rows = []
+        # SELECT bmid, sid, provider, domain
+        sql_command = """
+        SELECT b.bmid, i.sid, i.provider, l.domain
+        FROM BaseModel AS b
+        JOIN ModelServices AS m ON b.bmid = m.bmid
+        JOIN LLMService AS l ON m.sid = l.sid
+        JOIN InternetService AS i ON l.sid = i.sid
+        WHERE l.domain LIKE %s
+        ORDER BY b.bmid ASC
+        LIMIT 5
+        """
+
+        cur.execute(sql_command, (pattern,))
+
+        rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to list base model keyword: {e}")
+        print(f"Failed to list base model keyword.\n{e}")
         return []
     finally:
         cur.close()
