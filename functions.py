@@ -278,23 +278,37 @@ def deleteBaseModel(bmid):
         # rollback changes in case of error
         if 'conn' in locals() and conn:
             conn.rollback()
-            
+
         return False
     finally:
         cur.close()
         conn.close()
 
+'''
+Lists internet services used by base model
+'''
 def listInternetService(bmid):
     try:
         conn = get_connection()
         cur = conn.cursor()
 
         # SELECT sid, endpoint, provider 
+        # PROBLEM ITS NOT PRINTING IN ORDER AHH
+        cur.execute(
+            """
+            SELECT i.sid, i.endpoints, i.provider
+            FROM InternetService AS i
+            JOIN ModelServices AS ms ON ms.sid = i.sid
+            WHERE ms.bmid = %s
+            ORDER BY i.provider ASC
+            """,
+            (bmid,)
+        )
 
-        rows = [] 
+        rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to list internet service: {e}")  
+        print(f"Failed to list internet service.\n{e}")  
         return []
     finally:
         cur.close()
