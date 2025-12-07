@@ -1,0 +1,6 @@
+id,sql
+1,SELECT * FROM User LIMIT 3
+2,"SELECT bmid, description FROM BaseModel LIMIT 5"
+3,SELECT * FROM CustomizedModel WHERE bmid = 1
+4,"SELECT provider, endpoints FROM InternetService LIMIT 10"
+5,"SELECT client_uid, cid FROM Configuration LIMIT 7"

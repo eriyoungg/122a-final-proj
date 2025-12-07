@@ -455,15 +455,34 @@ def listBaseModelKeyWord(keyword):
         cur.close()
         conn.close()
 
+'''
+Print NL2SQL results
+'''
 def printNL2SQLresult():
     try:
         conn = get_connection()
         cur = conn.cursor()
 
-        # read csv
-        # return rows for print
-
+        csv_path = "NL2SQL.csv"
+        if not os.path.exists(csv_path):
+            print("Missing file: NL2SQL.csv")
+            return []
+        
         rows = []
+        with open(csv_path, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            header = next(reader, None) # skip if header exists
+            for row in reader:
+                if len(row) < 2:
+                    continue
+                qid, sql_text = row[0], row[1]
+                try:
+                    cur.execute(sql_text)
+                    data = cur.fetchall()
+                    rows.append((qid, len(data)))
+                except Exception as e:
+                    print(f"[DEBUG] Failed to execute SQL for id {qid}: {e}")
+
         return rows
     except Exception as e:
         print(f"Failed to print NL2SQL result: {e}")
