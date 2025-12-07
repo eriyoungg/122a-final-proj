@@ -278,7 +278,7 @@ def deleteBaseModel(bmid):
         # rollback changes in case of error
         if 'conn' in locals() and conn:
             conn.rollback()
-
+            
         return False
     finally:
         cur.close()
