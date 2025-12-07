@@ -364,17 +364,48 @@ def countCustomizedModel(*bmids):
         cur.close()
         conn.close()
 
+'''
+Shows top N longest duration configurations for a client
+'''
 def topNDurationConfig(uid, N):
+    # e.g. sql terminal command:
+    """
+    SELECT c.client_uid AS uid, c.cid, c.labels, c.content, m.duration
+        FROM Configuration AS c
+        JOIN ModelConfigurations AS m ON c.cid = m.cid
+        WHERE c.client_uid = 1
+        ORDER BY m.duration DESC, c.cid ASC
+        LIMIT 5;
+    """
     try:
         conn = get_connection()
         cur = conn.cursor()
 
-        # SELECT uid, cid, label, content, duration 
+        uid = int(uid)
+        N = int(N)
 
-        rows = []
+        # check that uid exists
+        cur.execute("SELECT 1 FROM AgentClient WHERE uid = %s", (uid,))
+        if not cur.fetchone():
+            print(f"[DEBUG] Client with the uid '{uid}' does not exist.")
+            return []
+
+        # SELECT uid, cid, label, content, duration 
+        sql_command = """
+        SELECT c.client_uid AS uid, c.cid, c.labels, c.content, m.duration
+        FROM Configuration AS c
+        JOIN ModelConfigurations AS m ON c.cid = m.cid
+        WHERE c.client_uid = %s 
+        ORDER BY m.duration DESC, c.cid ASC
+        LIMIT %s
+        """
+
+        cur.execute(sql_command, (uid, N))
+
+        rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to get top N duration config: {e}")
+        print(f"Failed to get top N duration config.\n{e}")
         return []
     finally:
         cur.close()
