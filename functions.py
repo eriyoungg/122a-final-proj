@@ -288,6 +288,14 @@ def deleteBaseModel(bmid):
 Lists internet services used by base model
 '''
 def listInternetService(bmid):
+    # e.g. test sql terminal command:
+    """
+    SELECT i.sid, i.endpoints, i.provider
+        FROM InternetService AS i
+        JOIN ModelServices AS ms ON ms.sid = i.sid
+        WHERE ms.bmid = 2
+        ORDER BY i.provider ASC;
+    """
     try:
         conn = get_connection()
         cur = conn.cursor()
@@ -325,7 +333,7 @@ def countCustomizedModel(*bmids):
         LEFT JOIN CustomizedModel AS c ON b.bmid = c.bmid
         WHERE b.bmid IN (2,3,1,0)
         GROUP BY b.bmid, b.description
-        ORDER BY b.bmid ASC
+        ORDER BY b.bmid ASC;
     """
     try:
         conn = get_connection()
