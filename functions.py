@@ -314,17 +314,43 @@ def listInternetService(bmid):
         cur.close()
         conn.close()
 
-def countCustomizedModel(bmid):
+'''
+Counts customized models per base model
+'''
+def countCustomizedModel(*bmids):
+    # e.g. sql terminal command:
+    """
+    SELECT b.bmid, b.description, COUNT(c.mid) AS customizedModelCount
+        FROM BaseModel AS b
+        LEFT JOIN CustomizedModel AS c ON b.bmid = c.bmid
+        WHERE b.bmid IN (2,3,1,0)
+        GROUP BY b.bmid, b.description
+        ORDER BY b.bmid ASC
+    """
     try:
         conn = get_connection()
         cur = conn.cursor()
 
-        # SELECT bmid, description, count
+        bmid_list = [int(x) for x in bmids]
 
-        rows = []
+        bmid_params = ",".join(["%s"] * len(bmid_list)) # since unknown amt of bmids
+
+        # SELECT bmid, description, count
+        sql_command =  f"""
+        SELECT b.bmid, b.description, COUNT(c.mid) AS customizedModelCount
+        FROM BaseModel AS b
+        LEFT JOIN CustomizedModel AS c ON b.bmid = c.bmid
+        WHERE b.bmid IN ({bmid_params})
+        GROUP BY b.bmid, b.description
+        ORDER BY b.bmid ASC
+        """
+
+        cur.execute(sql_command, tuple(bmid_list))
+
+        rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to count customized model: {e}")
+        print(f"Failed to count customized model.\n{e}")
         return []
     finally:
         cur.close()
