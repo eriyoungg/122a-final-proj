@@ -179,10 +179,7 @@ def insertAgentClient(uid, username, email, cardno,
         if users:
             print("[DEBUG] User with uid '{uid}' already exists/")
             raise ValueError
-
-        sql_command = """INSERT INTO User (uid, email, username)
-                         VALUES (%s, %s, %s)
-                         """
+        
         # check if uid primary key already exists
         cur.execute("SELECT 1 FROM AgentClient WHERE uid = %s", (uid,))
         agents = cur.fetchone()
@@ -190,6 +187,10 @@ def insertAgentClient(uid, username, email, cardno,
         if agents:
             print("[DEBUG] AgentClient with uid '{uid}' already exists.")
             raise ValueError
+
+        sql_command = """INSERT INTO User (uid, email, username)
+                         VALUES (%s, %s, %s)
+                         """
         
         sql_command2 = """INSERT INTO AgentClient (uid, interests, cardholder, expire, cardno, cvv, zip)
                           VALUES (%s, %s, %s, %s, %s, %s, %s)
