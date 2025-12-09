@@ -431,7 +431,7 @@ def listBaseModelKeyWord(keyword):
         conn = get_connection()
         cur = conn.cursor()
 
-        pattern = f"%{keyword}"
+        pattern = f"%{keyword}%"
 
         # SELECT bmid, sid, provider, domain
         sql_command = """
