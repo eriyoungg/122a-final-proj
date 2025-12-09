@@ -139,7 +139,6 @@ def import_data(folder_name):
         for table, filename in table_files.items():
             path = os.path.join(folder_name, filename)
             if not os.path.exists(path):
-                print(f"Missing file: {path}")
                 return False
             
             with open(path, "r", encoding="utf-8") as csvfile:
@@ -156,7 +155,6 @@ def import_data(folder_name):
         conn.commit()
         return True
     except Exception as e:
-        print("ERROR:", e)
         return False
     finally:
         cur.close()
@@ -177,7 +175,6 @@ def insertAgentClient(uid, username, email, cardno,
         users = cur.fetchone()
 
         if users:
-            print("[DEBUG] User with uid '{uid}' already exists/")
             raise ValueError
         
         # check if uid primary key already exists
@@ -185,7 +182,6 @@ def insertAgentClient(uid, username, email, cardno,
         agents = cur.fetchone()
 
         if agents:
-            print("[DEBUG] AgentClient with uid '{uid}' already exists.")
             raise ValueError
 
         sql_command = """INSERT INTO User (uid, email, username)
@@ -200,7 +196,6 @@ def insertAgentClient(uid, username, email, cardno,
         conn.commit()
         return True
     except Exception as e:
-        print(f"Failed to insert client.\n{e}")
 
         # rollback changes in case of error
         if 'conn' in locals() and conn:
@@ -225,7 +220,6 @@ def addCustomizedModel(mid, bmid):
         bmids = cur.fetchone()
 
         if not bmids:
-            print(f"[DEBUG] BaseModel with bmid '{bmid}' does not exist.")
             raise ValueError
         
         # check if primary key (bmid, mid) exists
@@ -233,7 +227,6 @@ def addCustomizedModel(mid, bmid):
         customized_models = cur.fetchone()
 
         if customized_models:
-            print(f"[DEBUG] CustomizedModel with bmid '{bmid}' and mid '{mid}' already exists.")
             raise ValueError
 
         sql_command = """INSERT INTO CustomizedModel (bmid, mid)
@@ -244,7 +237,6 @@ def addCustomizedModel(mid, bmid):
         return True
     except Exception as e:
         # Ed discussion said to return false if Base model that is referenced does not exist
-        print(f"Failed to add CustomizedModel.\n{e}")
 
         # rollback changes in case of error
         if 'conn' in locals() and conn:
@@ -266,7 +258,6 @@ def deleteBaseModel(bmid):
         # check if base model exists
         cur.execute("SELECT 1 FROM BaseModel WHERE bmid = %s", (bmid,))
         if not cur.fetchone():
-            print(f"[DEBUG] BaseModel with bmid '{bmid}' does not exist.")
             return False
         
         # delete base model (cascade)
@@ -274,7 +265,6 @@ def deleteBaseModel(bmid):
         conn.commit()
         return True
     except Exception as e:
-        print(f"Failed to delete base model.\n{e}")
 
         # rollback changes in case of error
         if 'conn' in locals() and conn:
@@ -317,7 +307,6 @@ def listInternetService(bmid):
         rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to list internet service.\n{e}")  
         return []
     finally:
         cur.close()
@@ -359,7 +348,6 @@ def countCustomizedModel(*bmids):
         rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to count customized model.\n{e}")
         return []
     finally:
         cur.close()
@@ -388,7 +376,6 @@ def topNDurationConfig(uid, N):
         # check that uid exists
         cur.execute("SELECT 1 FROM AgentClient WHERE uid = %s", (uid,))
         if not cur.fetchone():
-            print(f"[DEBUG] Client with the uid '{uid}' does not exist.")
             return []
 
         # SELECT uid, cid, label, content, duration 
@@ -406,7 +393,6 @@ def topNDurationConfig(uid, N):
         rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to get top N duration config.\n{e}")
         return []
     finally:
         cur.close()
@@ -450,7 +436,6 @@ def listBaseModelKeyWord(keyword):
         rows = cur.fetchall()
         return rows
     except Exception as e:
-        print(f"Failed to list base model keyword.\n{e}")
         return []
     finally:
         cur.close()
