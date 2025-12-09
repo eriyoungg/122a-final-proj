@@ -6,9 +6,9 @@ from load_env import load_env
 ENV = load_env(".env")
 
 DB_CONFIG = {
-    "host": ENV.get("host"),
-    "user": ENV.get("user"),
-    "password": ENV.get("password"), 
+    "host": "localhost",
+    "user": "test",
+    "password": "password",
     "database": "cs122a"
 }
 
@@ -460,34 +460,15 @@ def listBaseModelKeyWord(keyword):
 Print NL2SQL results
 '''
 def printNL2SQLresult():
-    try:
-        conn = get_connection()
-        cur = conn.cursor()
+    csv_path = "NL2SQL.csv"
 
-        csv_path = "NL2SQL.csv"
-        if not os.path.exists(csv_path):
-            print("Missing file: NL2SQL.csv")
-            return []
-        
-        rows = []
-        with open(csv_path, "r", encoding="utf-8") as f:
-            reader = csv.reader(f)
-            header = next(reader, None) # skip if header exists
-            for row in reader:
-                if len(row) < 2:
-                    continue
-                qid, sql_text = row[0], row[1]
-                try:
-                    cur.execute(sql_text)
-                    data = cur.fetchall()
-                    rows.append((qid, len(data)))
-                except Exception as e:
-                    print(f"[DEBUG] Failed to execute SQL for id {qid}: {e}")
-
-        return rows
-    except Exception as e:
-        print(f"Failed to print NL2SQL result: {e}")
+    if not os.path.exists(csv_path):
         return []
-    finally:
-        cur.close()
-        conn.close()
+
+    rows = []
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            rows.append(row)
+
+    return rows

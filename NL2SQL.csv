@@ -1,6 +1,7 @@
-id,sql
-1,SELECT * FROM User LIMIT 3
-2,"SELECT bmid, description FROM BaseModel LIMIT 5"
-3,SELECT * FROM CustomizedModel WHERE bmid = 1
-4,"SELECT provider, endpoints FROM InternetService LIMIT 10"
-5,"SELECT client_uid, cid FROM Configuration LIMIT 7"
+NLquery_id,NLquery,LLM_model_name,prompt,LLM_returned_SQL_id,LLM_returned_SQL_query,SQL_correct,Wrong_column,Wrong_join,Wrong_logic
+1,"For each Internet Service(sid), find the most frequently used version among all Base Models that utilize it.","ChatGPT-4o","Translate natural language to SQL",1,"SELECT sid, version, COUNT(*) AS usage_count FROM ModelServices GROUP BY sid, version ORDER BY usage_count DESC;",TRUE,FALSE,FALSE,FALSE
+1,"For each Internet Service(sid), find the most frequently used version among all Base Models that utilize it.","ChatGPT-4o","Translate with schema",2,"SELECT sid, version FROM ModelServices;",FALSE,FALSE,FALSE,TRUE
+2,"Find all the Internet Service(sid) that are utilized by every Base Model built by the agent creator user_iuwrh.","ChatGPT-4o","Translate natural language to SQL",3,"SELECT ms.sid FROM ModelServices ms JOIN BaseModel b ON ms.bmid=b.bmid WHERE b.creator_uid='user_iuwrh' GROUP BY ms.sid HAVING COUNT(*) = (SELECT COUNT(*) FROM BaseModel WHERE creator_uid='user_iuwrh');",TRUE,FALSE,FALSE,FALSE
+2,"Find all the Internet Service(sid) that are utilized by every Base Model built by the agent creator user_iuwrh.","ChatGPT-4o","Translate with schema",4,"SELECT sid FROM InternetService;",FALSE,FALSE,FALSE,TRUE
+3,"Find all customized models(mid) that do not appear in model configurations.","ChatGPT-4o","Translate natural language to SQL",5,"SELECT mid FROM CustomizedModel WHERE mid NOT IN (SELECT mid FROM ModelConfigurations);",TRUE,FALSE,FALSE,FALSE
+3,"Find all customized models(mid) that do not appear in model configurations.","ChatGPT-4o","Translate with schema",6,"SELECT * FROM CustomizedModel;",FALSE,FALSE,FALSE,TRUE
