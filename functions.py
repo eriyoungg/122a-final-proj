@@ -5,12 +5,20 @@ from load_env import load_env
 
 ENV = load_env(".env")
 
-DB_CONFIG = {
-    "host": "localhost",
-    "user": "test",
-    "password": "password",
-    "database": "cs122a"
-}
+if ENV and ENV.get("host") and ENV.get("user") and ENV.get("password"):
+    DB_CONFIG = {
+        "host": ENV.get("host"),
+        "user": ENV.get("user"),
+        "password": ENV.get("password"), 
+        "database": "cs122a"
+    }
+else:
+    DB_CONFIG = {
+        "host": "localhost",
+        "user": "test",
+        "password": "password",
+        "database": "cs122a"
+    }
 
 def get_connection():
     return mysql.connector.connect(**DB_CONFIG)
@@ -170,34 +178,44 @@ def insertAgentClient(uid, username, email, cardno,
         conn = get_connection()
         cur = conn.cursor()
 
-        '''
-        # check if uid primary key already exists
-        cur.execute("SELECT 1 FROM User WHERE uid = %s", (uid,))
-        users = cur.fetchone()
-
-        if users:
-            raise ValueError
         
-        # check if uid primary key already exists
+        # check if client with same uid already exists
         cur.execute("SELECT 1 FROM AgentClient WHERE uid = %s", (uid,))
         agents = cur.fetchone()
 
         if agents:
             raise ValueError
-        '''
+        
+        # check if user with same uid already exists
+        cur.execute("SELECT 1 FROM User WHERE uid = %s", (uid,))
+        users = cur.fetchone()
 
-        sql_command = """INSERT INTO User (uid, email, username)
+        if not users:
+            sql_command = """INSERT INTO User (uid, email, username)
                          VALUES (%s, %s, %s)
                          """
+            cur.execute(sql_command, (uid, email, username))
         
         sql_command2 = """INSERT INTO AgentClient (uid, interests, cardholder, expire, cardno, cvv, zip)
                           VALUES (%s, %s, %s, %s, %s, %s, %s)
                           """
-        cur.execute(sql_command, (uid, email, username))
+        
         cur.execute(sql_command2, (uid, interests, card_holder, expiration_date, cardno, cvv, zip_code))
         conn.commit()
         return True
     except Exception as e:
+        print(f"Failed to insert client: {e}")
+
+
+        # in case of duplicate primary key, print all users in database to debug
+        print('All users:')
+        try:
+            cur.execute("SELECT * FROM User")
+            users = cur.fetchall()
+            for user in users:
+                print(user)
+        except Exception as e:
+            print(f"Failed to fetch users: {e}")
 
         # rollback changes in case of error
         if 'conn' in locals() and conn:
