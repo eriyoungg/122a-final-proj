@@ -59,7 +59,6 @@ def main():
 
     elif cmd == "topNDurationConfig":
         result = topNDurationConfig(*params)
-        print("uid,cid,label,content,duration")
 
     elif cmd == "listBaseModelKeyWord":
         result = listBaseModelKeyWord(*params)

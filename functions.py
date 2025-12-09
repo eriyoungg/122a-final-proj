@@ -401,11 +401,12 @@ def topNDurationConfig(uid, N):
 
         # SELECT uid, cid, label, content, duration 
         sql_command = """
-        SELECT c.client_uid AS uid, c.cid, c.labels AS label, c.content, m.duration
+        SELECT c.client_uid AS uid, c.cid, c.labels AS label, c.content, MAX(m.duration) AS duration
         FROM Configuration AS c
         JOIN ModelConfigurations AS m ON c.cid = m.cid
         WHERE c.client_uid = %s 
-        ORDER BY m.duration DESC, c.cid ASC
+        GROUP BY c.client_uid, c.cid, c.labels, c.content
+        ORDER BY MAX(m.duration) DESC, c.cid ASC
         LIMIT %s
         """
 
