@@ -2,6 +2,7 @@ import os
 import csv
 import mysql.connector
 from load_env import load_env
+from tabulate import tabulate
 
 ENV = load_env(".env")
 
@@ -467,40 +468,20 @@ def listBaseModelKeyWord(keyword):
 Print NL2SQL results
 '''
 def printNL2SQLresult():
-    import os, csv
-    csv_path = os.path.join(os.path.dirname(__file__), "NL2SQL.csv")
+    csv_path = "NL2SQL.csv"
 
     if not os.path.exists(csv_path):
-        print("CSV not found:", csv_path)
+        print("NL2SQL.csv not found.")
         return
 
     with open(csv_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        grouped = {}
+        reader = csv.reader(f)
+        rows = list(reader)
 
-        for row in reader:
-            qid = row["NLquery_id"]
-            if qid not in grouped:
-                grouped[qid] = []
-            grouped[qid].append(row)
+    col_widths = [max(len(row[i]) for row in rows) for i in range(len(rows[0]))]
 
-    print("\n========== NL2SQL RESULTS ==========\n")
-
-    for qid, attempts in grouped.items():
-        print(f"NL Query ID {qid}")
-        print(f"{attempts[0]['NLquery']}\n")
-
-        for row in attempts:
-            correct = "Correct" if row["SQL_correct"] == "TRUE" else "Incorrect"
-            print(f"   Model: {row['LLM_model_name']} | Prompt: {row['prompt']} | Returned ID: {row['LLM_returned_SQL_id']}")
-            print(f"   SQL: {row['LLM_returned_SQL_query']}")
-            print(f"   Result: {correct}")
-            if row["Wrong_column"] == "TRUE": print("Wrong Column")
-            if row["Wrong_join"] == "TRUE": print("Wrong Join")
-            if row["Wrong_logic"] == "TRUE": print("Wrong Logic")
-            print()
-        print("-------------------------------------\n")
-
-
-if __name__ == "__main__":
-    printNL2SQLresult()
+    for i, row in enumerate(rows):
+        line = " | ".join(row[j].ljust(col_widths[j]) for j in range(len(row)))
+        print(line)
+        if i == 0:
+            print("-" * len(line))
