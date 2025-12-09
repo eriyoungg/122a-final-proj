@@ -60,9 +60,9 @@ def import_data(folder_name):
                 interests VARCHAR(255),
                 cardholder VARCHAR(100) NOT NULL,
                 expire DATE NOT NULL,
-                cardno CHAR(19) NOT NULL,
-                cvv CHAR(5) NOT NULL,
-                zip VARCHAR(10) NOT NULL,
+                cardno INT NOT NULL,
+                cvv INT NOT NULL,
+                zip INT NOT NULL,
                 FOREIGN KEY (uid) REFERENCES User (uid) ON DELETE CASCADE
             )""",
             """CREATE TABLE BaseModel (
