@@ -204,6 +204,7 @@ def insertAgentClient(uid, username, email, cardno,
         conn.commit()
         return True
     except Exception as e:
+        '''
         print(f"Failed to insert client: {e}")
 
 
@@ -216,7 +217,7 @@ def insertAgentClient(uid, username, email, cardno,
                 print(user)
         except Exception as e:
             print(f"Failed to fetch users: {e}")
-
+        '''
         # rollback changes in case of error
         if 'conn' in locals() and conn:
             conn.rollback()
