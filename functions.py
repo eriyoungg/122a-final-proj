@@ -170,6 +170,7 @@ def insertAgentClient(uid, username, email, cardno,
         conn = get_connection()
         cur = conn.cursor()
 
+        '''
         # check if uid primary key already exists
         cur.execute("SELECT 1 FROM User WHERE uid = %s", (uid,))
         users = cur.fetchone()
@@ -183,6 +184,7 @@ def insertAgentClient(uid, username, email, cardno,
 
         if agents:
             raise ValueError
+        '''
 
         sql_command = """INSERT INTO User (uid, email, username)
                          VALUES (%s, %s, %s)
