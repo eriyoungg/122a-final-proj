@@ -401,7 +401,7 @@ def topNDurationConfig(uid, N):
 
         # SELECT uid, cid, label, content, duration 
         sql_command = """
-        SELECT c.client_uid AS uid, c.cid, c.labels, c.content, m.duration
+        SELECT c.client_uid AS uid, c.cid, c.labels AS label, c.content, m.duration
         FROM Configuration AS c
         JOIN ModelConfigurations AS m ON c.cid = m.cid
         WHERE c.client_uid = %s 
