@@ -2,7 +2,6 @@ import os
 import csv
 import mysql.connector
 from load_env import load_env
-from tabulate import tabulate
 
 ENV = load_env(".env")
 
