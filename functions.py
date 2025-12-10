@@ -471,17 +471,16 @@ def printNL2SQLresult():
     csv_path = "NL2SQL.csv"
 
     if not os.path.exists(csv_path):
-        print("NL2SQL.csv not found.")
-        return
+        return []
 
+    rows = []
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
-        rows = list(reader)
+        headers = next(reader, None)  
+        
+        for row in reader:
+            rows.append(" \n")
+            labeled = [f"{headers[i]}: '{row[i]}'" for i in range(len(row))]
+            rows.append(labeled)
 
-    col_widths = [max(len(row[i]) for row in rows) for i in range(len(rows[0]))]
-
-    for i, row in enumerate(rows):
-        line = " | ".join(row[j].ljust(col_widths[j]) for j in range(len(row)))
-        print(line)
-        if i == 0:
-            print("-" * len(line))
+    return rows
